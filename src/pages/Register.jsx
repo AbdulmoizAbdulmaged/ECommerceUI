@@ -1,6 +1,9 @@
-import React from 'react'
+import React, { useState } from 'react'
 import styled from 'styled-components'
 import { mobile } from '../Responsive';
+import { addCustomer } from '../redux/apiCalls';
+import { useDispatch } from 'react-redux';
+import Navbar from '../components/Navbar';
 const Container = styled.div`
   width: 100vw;
   height: 100vh;
@@ -18,7 +21,7 @@ const Title = styled.h1`
 font-size: 24px;
 font-weight: 300;
 `;
-const Form = styled.form`
+const Form = styled.div`
   display: flex;
   flex-wrap: wrap;
 `;
@@ -41,22 +44,47 @@ const Button = styled.button`
   cursor: pointer;
 `;
 const Register = () => {
+
+  const [inputs,setInputs] = useState([]);
+  
+  const dispatch = useDispatch();
+  const handleChange = (e)=>{
+     e.preventDefault();
+    setInputs(prev=>{
+
+       return {...prev,[e.target.name]: e.target.value}
+    }); 
+
+    
+ }
+
+  const handleClick = (e)=>{
+     e.preventDefault();
+    
+    const customer = {...inputs,password:'none',address:'none',isAdmin:false,img:'none',wish:[]};
+     addCustomer(dispatch,customer);
+     window.location.href = '/login' 
+  }
   return (
+    <>
+    <Navbar/>
     <Container>
+      
       <Wrapper>
         <Title>CREATE AN ACCOUNT</Title>
-        <Form>
-          <Input placeholder="name"/>
-          <Input placeholder="last name"/>
-          <Input placeholder="user name"/>
-          <Input placeholder="email"/>
-          <Input placeholder="password"/>
-          <Input placeholder="confirm password"/>
+          <Form>
+          <Input placeholder="name" name='username' onChange={handleChange}/>
+          <Input placeholder="phone" name='phone' onChange={handleChange}/>
+          <Input placeholder="user name" style={{display:'none'}}/>
+          <Input placeholder="email" name='email' onChange={handleChange}/>
+          <Input placeholder="password" style={{display:'none'}}/> 
+          <Input placeholder="confirm password" style={{display:'none'}}/>
           <Agreement>By Creating an account, I consent the processing of my personal data in accordance with the <b>Privacy Policy</b></Agreement>
-          <Button>ADD ACCOUNT</Button>
-        </Form>
+          <Button onClick={handleClick}>ADD ACCOUNT</Button>
+          </Form>
       </Wrapper>
     </Container>
+    </>
   )
 }
 

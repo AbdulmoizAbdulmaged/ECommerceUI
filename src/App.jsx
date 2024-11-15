@@ -13,10 +13,17 @@ import {
 }
 from "react-router-dom";
 import Success from "./pages/Success";
+import PayCash from "./pages/PayCash";
+import Orders from "./pages/Orders";
+import WishesList from "./pages/WishesList";
+import SearchedProducts from "./components/SearchedProducts";
+import SearchedProductList from "./pages/SearchedProductList";
+
+
 
 
 const App = () => {
-  const user = useSelector(state=>state.user.currentUser);
+  const user = useSelector(state=>state.customer.currentCustomer.email);
   return (
     <BrowserRouter>
       <Routes>
@@ -26,11 +33,19 @@ const App = () => {
 
         <Route path="/products" element={<ProductList/>} />
 
+        <Route path="/searchedProducts" element={<SearchedProductList/>} />
+
+        <Route path="/wishes" element={<WishesList/>} />
+
         <Route path="/product/:id" element={<Product/>} />
 
         <Route path="/cart" element={<Cart/>} />
 
+        <Route path="/orders" element={<Orders/>}></Route>
+
         <Route path="/success" element={<Success/>} />
+
+        <Route path="/paycash" element={<PayCash/>} />
 
         <Route path="/login" element={user ? <Home/> : <Login/>} />
 

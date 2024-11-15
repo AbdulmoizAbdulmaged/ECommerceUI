@@ -6,6 +6,7 @@ import Products from '../components/Products';
 import Footer from '../components/Footer';
 import { mobile } from '../Responsive';
 import { useLocation, useNavigate } from 'react-router-dom';
+import SearchedProducts from '../components/SearchedProducts';
 
 const Container = styled.div`
   
@@ -34,9 +35,7 @@ const Select = styled.select`
 const Option = styled.option`
   
 `;
-const ProductList = () => {
-  const location = useLocation();
-  const cat = location.pathname.split("/")[2];
+function SearchedProductList() {
   const [filters,setFilters] = useState({});
   const [sort,setSort] = useState("newest");
   const navigate = useNavigate();
@@ -54,37 +53,15 @@ const ProductList = () => {
     {
       navigate('/products/infant');
     }
-    else if(value === 'Zara')
-    {
-      navigate('/products/zara');
-    }
-    else if(value === 'Aldo')
-    {
-      navigate('/products/aldo');
-    }
   }
-
   return (
     <Container>
       <Announcement/>
       <Navbar/>
-      <Title>{cat}</Title>
+      <Title></Title>
       <FilterContainer>
         <Filter><FilterText>Filter Products:</FilterText>
-        <Select name='type' onChange={handleFilters}>
-        <Option>select type</Option>
-        <Option>Women</Option>
-        <Option >Men</Option>
-        <Option>Kids</Option>
-        <Option>Infant</Option>
-        </Select>
-        <Select name='brand' onChange={handleFilters}>
-        <Option>select brand</Option>
-        <Option>Zara</Option>
-        <Option >Aldo</Option>
-        <Option>Addidas</Option>
-        <Option>Nike</Option>
-        </Select>
+        
         <Select name='size' onChange={handleFilters} style={{display:'none'}}>
           <Option disabled >
             Size
@@ -105,7 +82,7 @@ const ProductList = () => {
         </Select>
         </Filter>
       </FilterContainer>
-      <Products cat={cat} filters={filters} sort={sort} />
+      <SearchedProducts filters={filters} sort={sort} />
    
       <Footer/>
       
@@ -114,4 +91,4 @@ const ProductList = () => {
   )
 }
 
-export default ProductList
+export default SearchedProductList

@@ -1,6 +1,13 @@
 import axios from "axios";
-const BASE_URL = "http://localhost:5000/api/";
-const TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY1ZDI0Y2VlMDhjYWI3MjdjMzE2NTUyMyIsImlzQWRtaW4iOnRydWUsImlhdCI6MTcxMjg2NzgxMCwiZXhwIjoxNzEzMTI3MDEwfQ.5sKguw3P-Dd2Y7j2WOjELWyjSAo-2YuhK5c9ZYJdhZI";
+const BASE_URL = "https://retail-api.onrender.com/api/";
+let TOKEN = ""
+if(localStorage.getItem('persist:root') !== null){
+  if(JSON.parse(JSON.parse(localStorage.getItem('persist:root')).customer).currentCustomer !== null){
+    TOKEN   = JSON.parse(JSON.parse(localStorage.getItem('persist:root')).customer).currentCustomer.accessToken;
+  }
+
+
+}
 export const publicRequest = axios.create(
   {
     baseURL:BASE_URL,

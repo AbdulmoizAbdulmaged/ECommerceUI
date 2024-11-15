@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react'
 import styled from 'styled-components'
 import Announcement from '../components/Announcement';
 import Navbar from '../components/Navbar';
-import NewsLetter from '../components/NewsLetter';
 import Footer from '../components/Footer';
 import { Add, Remove } from '@material-ui/icons';
 import { mobile } from '../Responsive';
@@ -24,9 +23,9 @@ flex: 1;
 
 `;
 const Image = styled.img`
-width: 75%;
-height: 90vh;
-object-fit: cover;
+width: 300px;
+height:300px;
+
 ${mobile({height:"40vh"})}
 `;
 const InfoContainer = styled.div`
@@ -42,19 +41,22 @@ const Desc = styled.p`
  margin: 20px 0px;
 `;
 const Price = styled.span`
-  font-weight: 100;
-  font-size: 40px;
+  font-weight: 300;
+  font-size: 20px;
 `;
 const FilterContainer = styled.div`
   margin: 30px 0px;
   width: 50%;
   display: flex;
+  flex-direction: column;
   justify-content: space-between;
   ${mobile({width:"100%"})}
 `;
 const Filter = styled.div`
    display: flex;
    align-items: center;
+   margin-right:10px;
+   margin-bottom:10px;
 `;
 const FilterTitle = styled.span`
   font-size: 20px;
@@ -63,6 +65,7 @@ const FilterTitle = styled.span`
 const FilterColor = styled.div`
  width: 20px;
  height: 20px;
+ border: 1px solid black;
  border-radius: 50%;
  background-color: ${props=>props.color};
  margin: 0px 5px;
@@ -107,13 +110,21 @@ cursor: pointer;
   background-color: #f8f4f4;
 }
 `;
+const ProductColor = styled.div`
+  width: 20px;
+  height: 20px;
+  margin-right: 10px;
+  border-radius: 3px;
+  border: 1px solid gray;
+  background-color: ${props=>props.color};
+`;
 const Product = () => {
   const location = useLocation();
   const id = location.pathname.split("/")[2];
   const [product,setProduct] = useState({});
   const [quantity,setQuantity] = useState(1);
-  const [color,setColor] = useState("any color");
-  const [size,setSize] = useState("");
+  const [color,setColor] = useState(["any color"]);
+  const [size,setSize] = useState();
   const dispatch = useDispatch();
   
   useEffect(()=>{
@@ -121,6 +132,8 @@ const Product = () => {
       try{
            const res = await publicRequest.get("/products/find/"+ id);
            setProduct(res.data);
+           setSize(res.data.size[0])
+           setColor(res.data.color[0])
            
       }catch
       {
@@ -141,6 +154,9 @@ const Product = () => {
 
   const handleClick = ()=>{
     //update Cart
+    if(color === "any color"){
+      
+    }
     dispatch(addProduct({...product,quantity,color,size}));
     
     
@@ -160,18 +176,17 @@ const Product = () => {
           <Desc>{product.desc}</Desc>
           <Price>$ {product.price}</Price>
           <FilterContainer>
-            <Filter>
-              <FilterTitle>Color</FilterTitle>
+          {(product.color?.length > 0) && <Filter>
+            {(color !== 'any color') && <ProductColor color={color}/>}
+              <FilterTitle>Select Color</FilterTitle>
                {
                product.color?.map((c)=>(
                 <FilterColor onClick={() => setColor(c)} color={c} key={c}  />
                ))
                }
-               
-
-            </Filter>
-            <Filter>
-              <FilterTitle>Size</FilterTitle>
+            </Filter>}
+            {(product.size?.length > 0) &&<Filter>
+              <FilterTitle>Select Size</FilterTitle>
               <FilterSize onChange={(e)=>setSize(e.target.value)}>
                 {
                   product.size?.map((s)=>(
@@ -183,7 +198,7 @@ const Product = () => {
               
               
               </FilterSize>
-            </Filter>
+            </Filter>}
           </FilterContainer>
           <AddContainer>
             <AmountContainer>
@@ -196,7 +211,7 @@ const Product = () => {
           
         </InfoContainer>
       </Wrapper>
-      <NewsLetter/>
+    
       <Footer/>
     </Container>
   )

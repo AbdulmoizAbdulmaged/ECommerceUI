@@ -1,41 +1,45 @@
 import React, { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux';
-import { useLocation } from 'react-router-dom'
 import { userRequest } from '../requestMethod';
 import { resetCustomerCart } from '../redux/apiCalls';
-const Success = () => {
-  const location = useLocation();
-  const cart = location.state.cart;
-  const stripeData = location.state.stripeData;
+function PayCash() {
+  
+  const cart = useSelector((state)=>state.cart);
   const [orderId, setOrderId] = useState(null);
   const currentCustomer = useSelector((state) => state.customer.currentCustomer);
   const dispatch = useDispatch();
   
-  useEffect(() => {
+    useEffect(()=>{
     const createOrder = async () => {
       try {
         const res = await userRequest.post("/orders", {
           userId: currentCustomer._id,
+          phone: currentCustomer.phone,
           products: cart.products.map((item) => ({
             productId: item._id,
             title: item.title,
             img: item.img,
-            size: item.size,
-            color: item.color,
+            price:item.price,
+            size: item.selectedSize,
+            color: item.selectedColor,
             quantity: item._quantity,
           })),
-          amount: stripeData.amount,
-          address: stripeData.billing_details.address,
-          payment: 'online',
-          paymentStatus: 'done'
+          amount: cart.total * 100,
+          address: 'none',
+          payment: 'cash',
+          paymentStatus: 'pending',
+          
         });
-        console.log(res.data);
+      
         setOrderId(res.data._id);
-        resetCustomerCart(dispatch);
+        
       } catch {}
     };
-    stripeData && createOrder();
-  }, [cart, stripeData, currentCustomer,dispatch]);
+
+  createOrder();
+  resetCustomerCart(dispatch);
+},[])
+ 
   return (
     <div
       style={{
@@ -54,4 +58,4 @@ const Success = () => {
   )
 }
 
-export default Success
+export default PayCash

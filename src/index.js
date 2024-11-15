@@ -6,7 +6,11 @@ import reportWebVitals from './reportWebVitals';
 import { Provider } from 'react-redux';
 import { store, persistor } from "./redux/store";
 import { PersistGate } from 'redux-persist/integration/react';
+import "slick-carousel/slick/slick.css";
+import "slick-carousel/slick/slick-theme.css";
+import { disableReactDevTools } from '@fvilers/disable-react-devtools';
 
+if(process.env.NODE_ENV==='production') disableReactDevTools();
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <Provider store={ store }>

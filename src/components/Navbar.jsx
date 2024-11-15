@@ -1,16 +1,28 @@
 
 import { Badge } from '@material-ui/core';
 
-import { Search, ShoppingCartOutlined } from '@material-ui/icons';
-import React from 'react';
+import { FavoriteBorderOutlined, Search, Shop, ShoppingCartOutlined } from '@material-ui/icons';
+import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import {mobile} from '../Responsive';
-import { useSelector } from 'react-redux';
-import { Link } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
+import { Link, Navigate, useNavigate, } from 'react-router-dom';
+import { signOut } from '../redux/apiCalls';
+import axios from 'axios';
+import { getSearchProducts } from '../redux/searchRedux';
+
 
 const Container = styled.div`
-height:60px;
-${mobile({height:"50px",marginBottom:"5px"})}
+ position: -webkit-sticky; /* For Safari */
+            position: sticky;
+            top: 0;
+            background-color: white;
+            z-index: 1000; /* Ensures it stays above other content */
+height:75px;
+-webkit-box-shadow: 0px 0px 15px -10px rgba(0, 0, 0, 0.75);
+  box-shadow: 0px 0px 15px -10px rgba(0, 0, 0, 0.75);
+  margin-Top: 15px;
+${mobile({marginBottom:"20px",dispatch:'flex',flexDirection:'column',height:'140px'})};
 `
 const Wrapper = styled.div`
   padding: 10px 20px;
@@ -18,12 +30,14 @@ const Wrapper = styled.div`
  justify-content: space-between;
  align-items: center;
 ${mobile({padding:"10px 0px"})}
+${mobile({flexDirection:"column"})}
 `
 
 const Left = styled.div`
 flex: 1;
 display: flex;
 align-items: center;
+justify-content: space-around;
 `;
 const Right = styled.div`
 flex: 1;
@@ -51,15 +65,17 @@ display: flex;
 align-items: center;
 margin-left: 25px;
 padding: 5px;
+
 `;
 
 const Input = styled.input`
   border: none;
-  ${mobile({width:"50px"})}
+  ${mobile({width:"150px"})}
 `;
 
 const Logo = styled.h1`
 font-weight: bold;
+cursor: pointer;
 ${mobile({fontSize:"24px",marginLeft:"10px"})}
 `
 
@@ -71,6 +87,52 @@ const MenuItem = styled.div`
 `
 const Navbar = () => {
   const quantity = useSelector(state=>state.cart.quantity);
+  const user = useSelector(state=>state.customer.currentCustomer);
+  const [products,setProducts] = useState([])
+  const [query,setQuery] = useState([]);
+  const [filteredItems,setFilteredItems] = useState([]);
+  const navigate = useNavigate();
+  
+  useEffect(()=>{
+    const getProducts = async ()=>{
+     try{
+       const res = await axios.get("https://retail-api.onrender.com/api/products");
+       setProducts(res.data);
+       
+     }catch(err){
+
+     }
+    }
+    getProducts();
+ },[]);
+  let wish = 0;
+  if(user._id){
+    wish = user.wish?.length;
+ }
+ 
+  const dispatch = useDispatch();
+
+  const handleClick = (e)=>{
+    e.preventDefault();
+    if(user.email){
+    signOut(dispatch);
+    }else
+    {
+      window.location.href = '/login'
+    }
+  }
+  const handleSearch = ()=>{
+    if(query.length>0){
+    const wordsArray = query.split(' ');
+    const filteredProducts = products.filter(product =>
+    wordsArray.every(term => product.categories.includes(term))
+);
+    
+    console.log(filteredProducts);
+    dispatch(getSearchProducts(filteredProducts));
+    navigate('/searchedProducts');
+  }}
+  
   
   return (
     <Container>
@@ -80,15 +142,26 @@ const Navbar = () => {
           EN
         </Languages>
         <SearchContainer>
-          <Input placeholder='Search'/>
-          <Search style={{color:"gray",fontSize:16,cursor:"pointer"}}/>
+          <Input placeholder='Search' id='query' name='query' onChange={e=>setQuery(e.target.value)}/>
+          <Search  style={{color:"gray",fontSize:16,cursor:"pointer"}} onClick={handleSearch}/>
+          <Link to={'/products'}>
+        <Shop style={{color:'blue',fontSize:30,cursor:"pointer"}}/>
+        </Link>
         </SearchContainer>
+        
         </Left>
-        <Center><Logo>LAMA.</Logo></Center>
+        <Link to={'/'}>
+        <Center><Logo>R9Retail.com</Logo></Center>
+        </Link>
        <Right>
 
-        <MenuItem>REGISTER</MenuItem>
-        <MenuItem>SIGN IN</MenuItem>
+        <MenuItem>{!user && 'REGISTER'}</MenuItem>
+        <MenuItem style={{color:'green'}}>{!user ?'SignIn' : user.phone}</MenuItem>
+        <Link to={'/orders'}>
+        <MenuItem  style={{color:'green'}}>
+          {user.email && 'My Orders'}
+        </MenuItem></Link>
+        <MenuItem onClick={handleClick} style={{color:'blue'}}>{user.email ? 'SignOut' : <MenuItem style={{color:'green'}}>SignIn</MenuItem>}</MenuItem>
         <Link to="/cart">
         
         <MenuItem>
@@ -96,6 +169,15 @@ const Navbar = () => {
         <ShoppingCartOutlined/>
         </Badge>
         </MenuItem>
+        </Link>
+        <Link to={'/wishes'}>
+          {user.phone &&
+        <MenuItem>
+         <Badge badgeContent={wish} color="primary">
+        <FavoriteBorderOutlined/>
+        </Badge>
+        </MenuItem>
+        }
         </Link>
        </Right>
        

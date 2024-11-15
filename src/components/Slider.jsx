@@ -1,18 +1,19 @@
 import { ArrowLeftOutlined, ArrowRightOutlined } from '@material-ui/icons'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import styled from 'styled-components'
 import { sliderItems } from '../data';
 import { mobile } from '../Responsive';
+import axios from 'axios';
 
 const Container = styled.div`
   width: 100%;
-  height: 100vh;
+  height: 500px;
   display: flex;
-  
   margin-top: 10px;
+  margin-bottom: 20px;
   position: relative;
   overflow: hidden;
-  ${mobile({display:"none"})}
+  ${mobile({flexDirection:'column',width:'350px',})}
 `
 const Arrow = styled.div`
   width: 50px;
@@ -54,6 +55,7 @@ flex: 1;
 `;
 const Image = styled.img`
 height: 80%;
+${mobile({height:'150px',})}
 `;
 
 const InfoContainer = styled.div`
@@ -62,23 +64,31 @@ const InfoContainer = styled.div`
 `;
 const Title = styled.h1`
   font-size: 50px;
+  ${mobile({fontSize:'25px'})}
+  
 `;
 const Desc = styled.p`
   font-size: 20px;
-  margin: 20px 0px;
+  margin: 10px 0px;
   font-weight: 500;
   letter-spacing: 3px;
+
 `;
 const Button = styled.button`
 padding: 10px;
 font-size: 20px;
 background-color: transparent;
 cursor: pointer;
+${mobile({fontSize:'15px'})}
 
 `;
 
 const Slider = () => {
   const [slideIndex,setSlideIndex] = useState(0);
+  const [products,setProducts] = useState([]);
+
+  
+  
   const handleClick = (direction)=>{
   if(direction === "left"){
     setSlideIndex(slideIndex > 0 ? slideIndex -1 : 1)

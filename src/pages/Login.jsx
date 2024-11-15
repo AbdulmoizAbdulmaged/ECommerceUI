@@ -3,6 +3,9 @@ import styled from 'styled-components'
 import { mobile } from '../Responsive';
 import { useDispatch, useSelector } from 'react-redux';
 import { login } from '../redux/apiCalls';
+import { Link } from 'react-router-dom';
+import Navbar from '../components/Navbar';
+
 const Container = styled.div`
   width: 100vw;
   height: 100vh;
@@ -44,7 +47,7 @@ const Button = styled.button`
         cursor: not-allowed;
   }
 `;
-const Link = styled.a`
+const HyperLink = styled.a`
   margin: 5px 0;
   font-size: 12px;
   text-decoration: underline;
@@ -55,29 +58,40 @@ const Error = styled.span`
 `
 const Login = () => {
 
-  const [username,setUsername] = useState("");
-  const [password,setPassword] = useState("");
+  const [phone,setPhone] = useState("");
   const dispatch = useDispatch();
-  const {isFetching,error} = useSelector((state)=> state.user);
+
+  
   const handleClick = (e)=>{
     e.preventDefault();
-    login(dispatch,{username,password});
+    login(dispatch,{phone,});
   }
 
   return (
+    <>
+    <Navbar/>
     <Container>
+      
       <Wrapper>
         <Title>SIGN IN</Title>
         <Form>
-          <Input placeholder="email" onChange={(e)=>setUsername(e.target.value)}/>
-          <Input type='password' placeholder="password" onChange={(e)=>setPassword(e.target.value)}/>
-          <Button onClick={handleClick} disabled={isFetching}>LOGIN</Button>
-          {error && <Error>Something went wrong...</Error>}
-          <Link>Forgot your password.</Link>
-          <Link>Create a new Account.</Link>
+          <Input type='tel' pattern="[0-9]{3}[0-9]{3}[0-9]{4}" maxlength="10"  placeholder="enter phone number" onChange={(e)=>setPhone(e.target.value)} required/>
+          <Input type='password' style={{display:'none'}} placeholder="password" />
+          <Button onClick={handleClick} >LOGIN</Button>
+          {(useSelector((state)=> state.customer.error) === true) && <Error>Account is not available...</Error>  }
+          
+          <Link to={'/register'}>
+          <HyperLink>
+          Create a new Account.
+          </HyperLink>
+          </Link>
+          
+          
+         
         </Form>
       </Wrapper>
     </Container>
+    </>
   )
 }
 

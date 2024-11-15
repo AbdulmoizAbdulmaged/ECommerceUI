@@ -57,8 +57,8 @@ const Image = styled.img`
 `;
 
 const Icon = styled.div`
-  width: 40px;
-  height: 40px;
+  width: 75px;
+  height: 75px;
   border-radius: 50%;
   background-color: transparent;
   display: flex;
@@ -69,9 +69,9 @@ const Icon = styled.div`
   transition: all 0.5s ease;
   
   &:hover{
-      background-color: wheat;
-      transform: scale(1.1);
-      display: inline-block;
+      background-color: transparent;
+      transform: scale(2.0);
+      
   }
 
 `;
@@ -133,105 +133,102 @@ const FilterSize = styled.span`
   }
 `;
 
-
-const ProductItem = ({item}) => {
+function SearchedItem({item}) {
   const customer = useSelector(state=>state.customer.currentCustomer);
- const dispatch = useDispatch();
- const quantity = 1;
-  const addToCart = ()=>{
-      if(item.selectedColor === 'none' || item.selectedSize === 'none'){
-        toast.info('Please Select Size and Color!', {
-          position: "top-center",
-          autoClose: 3000,
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
-          progress: undefined,
-          theme: "light",
-          
-          });
-      }else{
-        console.log(item)
-        dispatch(addProduct({...item,quantity}));  
-        item.selectedColor = 'none';
-        item.selectedSize = 'none';
-        toast.success('Added Successfully!', {
-          position: "top-center",
-          autoClose: 3000,
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
-          progress: undefined,
-          theme: "light",
-          
-          });
-      }
+  const dispatch = useDispatch();
+  const quantity = 1;
+   const addToCart = ()=>{
+       if(item.selectedColor === 'none' || item.selectedSize === 'none'){
+         toast.info('Please Select Size and Color!', {
+           position: "top-center",
+           autoClose: 3000,
+           hideProgressBar: false,
+           closeOnClick: true,
+           pauseOnHover: true,
+           draggable: true,
+           progress: undefined,
+           theme: "light",
+           
+           });
+       }else{
+         
+         dispatch(addProduct({...item,quantity}));  
+         item.selectedColor = 'none';
+         item.selectedSize = 'none';
+         toast.success('Added Successfully!', {
+           position: "top-center",
+           autoClose: 3000,
+           hideProgressBar: false,
+           closeOnClick: true,
+           pauseOnHover: true,
+           draggable: true,
+           progress: undefined,
+           theme: "light",
+           
+           });
+       }
+       
+   }
+   
+   const addToWish = ()=>{
+    
+     if(customer?.phone !== undefined){
+     dispatch(addWish(item));
+     }
+   }
+   
+   return (
+     <Wrapper>
+    <Container>
+      <Image src={item?.img}/>
+      <Info>
       
-  }
+       <Icon>
+         <Link to={`/product/${item?._id}`}>
+         <ShoppingCartOutlined />
+         </Link>
+         
+       </Icon>
+       <Icon>
+          <FavoriteBorderOutlined style={{color:'red'} } onClick={addToWish}/>
+       </Icon>
+      </Info>
+      <Title>{item?.title}</Title>
+    <Price>{item?.price} SAR</Price>
+    
+    <Product>
+    
+    <FilterContainer>
+     <Filter>
+       
+       {
+         item.color.map((c)=>
+       <FilterColor onClick={()=>{item.selectedColor = c}} color={c} key={c} />)
+       
+       }
+       
+     </Filter>
+    </FilterContainer>
+    <FilterContainer>
+     <Filter>
+       
+       {
+         item.size?.map((c)=>
+       <FilterSize onClick={()=>{item.selectedSize = c}
+       
+       }  key={c}>
+         {c}
+         </FilterSize>
+         )
+       }
+     </Filter>
+    </FilterContainer>
+   </Product>
+   </Container>
+   <ToastContainer/>
+   </Wrapper>
   
-  const addToWish = ()=>{
-   
-    if(customer?.phone !== undefined){
-    dispatch(addWish(item));
-    }
-  }
-  
-  return (
-    <Wrapper>
-   <Container>
-     <Image src={item?.img}/>
-     <Info>
-      <Icon>
-         <ShoppingCartOutlined style={{color:'green'}} onClick={addToCart}/>
-      </Icon>
-      <Icon>
-        <Link to={`/product/${item?._id}`}>
-        <SearchOutlined />
-        </Link>
-        
-      </Icon>
-      <Icon>
-         <FavoriteBorderOutlined style={{color:'red'} } onClick={addToWish}/>
-      </Icon>
-     </Info>
-     <Title>{item?.title}</Title>
-   <Price>{item?.price} SAR</Price>
-   
-   <Product>
-   
-   <FilterContainer>
-    <Filter>
-      
-      {
-        item.color.map((c)=>
-      <FilterColor onClick={()=>{item.selectedColor = c}} color={c} key={c} />)
-      
-      }
-      
-    </Filter>
-   </FilterContainer>
-   <FilterContainer>
-    <Filter>
-      
-      {
-        item.size?.map((c)=>
-      <FilterSize onClick={()=>{item.selectedSize = c}
-      
-      }  key={c}>
-        {c}
-        </FilterSize>
-        )
-      }
-    </Filter>
-   </FilterContainer>
-  </Product>
-  </Container>
-  <ToastContainer/>
-  </Wrapper>
- 
-  )
+   )
 }
 
-export default ProductItem
+export default SearchedItem

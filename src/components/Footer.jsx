@@ -7,8 +7,8 @@ const Container = styled.div`
   display: flex;
   
   padding: 20px;
-
-  ${mobile({flexDirection:"column"})}
+  
+  ${mobile({flexDirection:"column",fontSize:'12px'})}
 
 `;
 const Logo = styled.h1`
@@ -76,7 +76,7 @@ const Footer = () => {
   return (
     <Container>
       <Left>
-        <Logo>LAMA.</Logo>
+        <Logo>R9Retail.com</Logo>
         <Desc>There are many passages of lorem Ipsum available. but majority have suffered alteration in some form
           by injected humour or randomised words which don't look even slightly believable
         </Desc>

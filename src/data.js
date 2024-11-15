@@ -20,9 +20,9 @@ export const  sliderItems =
 export const categories = [
 {
   id: 1,
-  img: "https://i.ibb.co/5kGMrc8/cat1.png",
-  title: "Share Style",
-  cat: "man"
+  img: "https://firebasestorage.googleapis.com/v0/b/shop-18d6e.appspot.com/o/Zara.JPG?alt=media&token=06867b2b-bd2e-47d3-9614-34bdc7a83bd7",
+  title: "Zara",
+  cat: "zara"
 },
 {
   id: 2,

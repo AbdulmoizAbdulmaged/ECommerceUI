@@ -2,26 +2,36 @@ import React, { useEffect, useState } from 'react'
 import styled from 'styled-components'
 import Announcement from '../components/Announcement';
 import Navbar from '../components/Navbar';
-import Footer from '../components/Footer';
-import { Add, Remove } from '@material-ui/icons';
+import { Add, DeleteOutlined, Remove } from '@material-ui/icons';
 import { mobile } from '../Responsive';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import StripeCheckout from 'react-stripe-checkout';
 import { userRequest } from '../requestMethod';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { removeProductSuccess, updateProductQuantitySuccessful } from '../redux/cartRedux';
+
+
+
+
 
 
 const KEY = "pk_test_51Oo2gmCF9ap7lAyw3JKsmRoKT0njH1v22ggEeBfkgqv8mo6zXNMWVUDPl9qE5CjdaXhbVCbeGgUenYkK5huXeeR200bHOlVIU9";
 const Container = styled.div`
-  
+
+  ${mobile({padding:"10px"})}
+${mobile({flexDirection:"column"})}
 `;
 const Wrapper = styled.div`
   padding: 20px;
-  ${mobile({padding:"10px"})}
+  ${mobile({padding:"5px"})};
+  
+  ${mobile({flexDirection:'column',})};
+  
 `;
 const Title = styled.h1`
   font-weight: 300;
   text-align: center;
+ ${mobile({display:'none'})}
 `;
 const Top = styled.div`
   display: flex;
@@ -35,6 +45,7 @@ const TopButton = styled.button`
   border: ${props=>props.type==="filled" && "none"};
   background-color: ${props=>props.type==="filled" ? "black" : "transparent"};
   color: ${props=>props.type==="filled" && "white"};
+ 
 `;
 const TopTexts = styled.div`
   ${mobile({display:"none"})}
@@ -56,15 +67,22 @@ const Info = styled.div`
 const Product = styled.div`
   display: flex;
   justify-content: space-between;
-  ${mobile({flexDirection:"column"})}
+  ${mobile({flexDirection:"column",fontSize: "12px"})};
+  -webkit-box-shadow: 0px 0px 15px -10px rgba(0, 0, 0, 0.75);
+  box-shadow: 0px 0px 15px -10px rgba(0, 0, 0, 0.75);
+  margin-Top: 15px;
+  
 `;
 const ProductDetail = styled.div`
   flex: 2;
   display: flex;
 `;
 const Image = styled.img`
-  width: 200px;
-  margin-top: 5px;
+ width:100px;
+height: 100px;
+margin-top:5px;
+border-radius: 5px;
+margin-left: 20px;
 `;
 const Details = styled.div`
   padding: 20px;
@@ -82,6 +100,7 @@ const ProductColor = styled.div`
   width: 20px;
   height: 20px;
   border-radius: 50%;
+  border: 1px solid gray;
   background-color: ${props=>props.color};
 `;
 const ProductSize = styled.span`
@@ -100,10 +119,16 @@ display: flex;
 align-items: center;
 margin-bottom: 20px;
 `;
-const ProductAmount = styled.div`
-  font-size: 24px;
-  margin: 5px;
-  ${mobile({margin:"5px 15px"})}
+
+const Amount = styled.span`
+  width: 30px;
+  height: 30px;
+  border-radius: 10px;
+  border: 1px solid teal;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0px 5px;
 `;
 const ProductPrice = styled.div`
   font-size: 30px;
@@ -120,7 +145,7 @@ const Summary = styled.div`
   border: solid 0.5px lightgray;
   border-radius: 10px;
   padding: 20px;
-  height: 60vh;
+  height: 80vh;
 
 `;
 const SummaryTitle = styled.h1`
@@ -142,15 +167,21 @@ const SummaryItemPrice = styled.div`
 const Button = styled.button`
 width: 100%;
 padding: 10px;
+margin-bottom: 3px;
 background-color: black;
 color: white;
+cursor: pointer;
 `;
 
 
 const Cart = () => {
 
   const cart = useSelector(state=>state.cart);
+  const [totalPrice, setTotalPrice] = useState(0);
   const [stripeToken,setStripeToken] = useState(null);
+  const dispatch = useDispatch();
+  const customer = useSelector(state=>state.customer.currentCustomer);
+ 
   
   const onToken = (token)=>{
     setStripeToken(token);
@@ -174,19 +205,74 @@ const Cart = () => {
     };
     stripeToken && makeRequest();
   }, [stripeToken, cart,navigate]);
+
+  
+
+  const handleDeleteProduct = (e)=>{
+    e.preventDefault();
+    const productId = e.target.id
+    const product = cart.products.find(product=> product._id === productId);
+   try{
+
+    dispatch(removeProductSuccess({...product,totalPrice}));
+   
+    
+   }catch(err){}
+   
+  }
+
+  useEffect(()=>{
+    if (cart && cart.products) {
+      const sum = cart.products.reduce((acc, product) => acc + (product.price * product.quantity), 0);
+      setTotalPrice(sum);
+      
+    }
+  },[cart]);
+
+  const handleOrderClick = (e)=>{
+     e.preventDefault();
+     if(customer.email){
+     
+     navigate("/paycash",{replace:true,state:{cart:cart,}
+        });
+    }else
+    {
+      window.location.href = '/login'
+    }
+  }
+
+ const handleProductQuantity = (product,type)=>{
+ 
+   const id = product._id;
+   if(type === "inc"){
+    const quantity = product.quantity + 1;
+    dispatch(updateProductQuantitySuccessful({ id,quantity }));
+   }else if(type === "dec"){
+    const quantity = product.quantity - 1;
+    if(quantity > 0){
+    dispatch(updateProductQuantitySuccessful({ id,quantity }));
+    }
+   }
+   console.log(cart.products);
+   
+   
+ }
+  console.log(cart)
   return (
    <Container>
     <Announcement/>
     <Navbar/>
     <Wrapper>
-      <Title>YOUR BAG</Title>
+      <Title>My Cart</Title>
       <Top>
-        <TopButton >CONTINUE SHOPING</TopButton>
+        <Link to={'/products'}>
+        <TopButton>CONTINUE SHOPING</TopButton>
+        </Link>
         <TopTexts>
-          <TopText>SHOPING BAG(2)</TopText>
-          <TopText>YOUR WISHLIST(0)</TopText>
+          <TopText style={{display:'none'}}>SHOPING BAG(2)</TopText>
+          <TopText style={{display:'none'}}>YOUR WISHLIST(0)</TopText>
         </TopTexts>
-        <TopButton type="filled">CHECK OUT NOW</TopButton>
+        <TopButton style={{display:'none'}}onClick={handleOrderClick} type="filled">PAY CASH</TopButton>
       </Top>
       <Bottom>
         <Info>
@@ -197,15 +283,16 @@ const Cart = () => {
               <Details>
                 <ProductName><b>Product:</b> {product.title}</ProductName>
                 <ProductId><b>ID:</b>{product._id}</ProductId>
-                <ProductColor color={product.color}/>
-                <ProductSize><b>Size:</b> {product.size}</ProductSize>
+                {(product.color !== 'any color') && <ProductColor color={product.selectedColor}/>}
+                <ProductSize><b>Size:</b> {product.selectedSize}</ProductSize>
+                <DeleteOutlined id={product._id} onClick={handleDeleteProduct} style={{marginTop:'10px',cursor:'pointer',color:'red'}}/>
               </Details>
             </ProductDetail>
             <PriceDetail>
               <ProductAmountContainer>
-                <Add/>
-                <ProductAmount>{product.quantity}</ProductAmount>
-                <Remove/>
+                <Add style={{cursor:'pointer',color:'green'}} id={product._id} onClick={()=>handleProductQuantity(product,"inc")} />
+                <Amount>{product.quantity}</Amount>
+                <Remove style={{cursor:'pointer',color:'red'}} id={product._id} onClick={()=>handleProductQuantity(product,"dec")}/>
               </ProductAmountContainer>
               <ProductPrice>$ {product.price*product.quantity}</ProductPrice>
             </PriceDetail>
@@ -219,7 +306,7 @@ const Cart = () => {
           <SummaryTitle>ORDER SUMMARY</SummaryTitle>
           <SummaryItem>
             <SummaryItemText>Subtotal</SummaryItemText>
-            <SummaryItemPrice>$ {cart.total}</SummaryItemPrice>
+            <SummaryItemPrice>$ {totalPrice}</SummaryItemPrice>
           </SummaryItem>
           <SummaryItem>
             <SummaryItemText>Estimated Shipping</SummaryItemText>
@@ -231,24 +318,30 @@ const Cart = () => {
           </SummaryItem>
           <SummaryItem  type="total">
             <SummaryItemText>Total</SummaryItemText>
-            <SummaryItemPrice>$ {cart.total}</SummaryItemPrice>
+            <SummaryItemPrice>$ {totalPrice}</SummaryItemPrice>
           </SummaryItem>
-          <StripeCheckout
-              name="Lama Shop"
+          <SummaryItem>
+          <Button onClick={handleOrderClick} type="filled">PAY CASH</Button>
+          </SummaryItem>
+        
+         {customer.email ? <StripeCheckout
+              name="R9 Retail"
               image="https://avatars.githubusercontent.com/u/1486366?v=4"
               billingAddress
               shippingAddress
-              description={`Your total is $${cart.total}`}
-              amount={cart.total * 100}
+              description={`Your total is $${totalPrice}`}
+              amount={totalPrice * 100}
               token={onToken}
               stripeKey={KEY}
             >
-              <Button>CHECKOUT NOW</Button>
-            </StripeCheckout>
+              <Button style={{}}>PAY ONLINE</Button>
+            </StripeCheckout> : ()=>{window.location.href = '/login'}}
+         
         </Summary>
+        
       </Bottom>
     </Wrapper>
-    <Footer/>
+    
 
    </Container>
 

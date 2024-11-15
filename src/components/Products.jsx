@@ -1,26 +1,24 @@
 import React, { useEffect, useState } from 'react'
 import styled from 'styled-components'
-import { popularProducts } from '../data'
 import ProductItem from './ProductItem'
 import axios from 'axios';
 
 const Container = styled.div`
-  padding: 20px;
+  padding: 10px;
   display: flex;
   flex-wrap: wrap;
-  justify-content: space-between;
+  justify-content: space-around;
   background-color: #f5fefd;
 `
 const Products = ({cat,filters,sort}) => {
   const [products,setProducts] = useState([]);
   const [filteredProducts,setFilteredProducts] = useState([]);
-
   useEffect(()=>{
      const getProducts = async ()=>{
       try{
-        const res = await axios.get(cat ? `http://localhost:5000/api/products?category=${cat}` : "http://localhost:5000/api/products");
+        const res = await axios.get(cat ? `https://retail-api.onrender.com/api/products?category=${cat}` : "https://retail-api.onrender.com/api/products");
         setProducts(res.data);
-        console.log(res.data);
+        
       }catch(err){
 
       }
